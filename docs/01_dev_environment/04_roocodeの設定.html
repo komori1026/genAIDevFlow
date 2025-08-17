@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roo Code 設定ガイド</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        #slide-container {
+            width: 90%;
+            max-width: 960px;
+            background-color: white;
+            box-shadow: 0 4px B2px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        canvas {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            display: block;
+        }
+        #navigation {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            padding: 10px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="slide-container">
+        <canvas id="slideCanvas" width="1280" height="720"></canvas>
+    </div>
+
+    <div id="navigation">
+        <button id="prevBtn">前へ</button>
+        <button id="nextBtn">次へ</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('slideCanvas');
+        const ctx = canvas.getContext('2d');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        let currentSlide = 0;
+        const totalSlides = 8;
+
+        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            const lines = text.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const words = lines[i].split('');
+                let line = '';
+                for(let n = 0; n < words.length; n++) {
+                    let testLine = line + words[n];
+                    let metrics = context.measureText(testLine);
+                    if (metrics.width > maxWidth && n > 0) {
+                        context.fillText(line, x, y);
+                        line = words[n];
+                        y += lineHeight;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                context.fillText(line, x, y);
+                y += lineHeight;
+            }
+        }
+
+        const slides = [
+            // Slide 1: Title
+            () => {
+                ctx.fillStyle = '#4A148C';
+                ctx.fillRect(0, 0, 1280, 720);
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 72px sans-serif';
+                ctx.fillText('Roo Code 設定ガイド', 1280 / 2, 300);
+                ctx.font = '36px sans-serif';
+                ctx.fillText('開発効率を最大化するカスタマイズ', 1280 / 2, 420);
+                ctx.font = '24px sans-serif';
+                ctx.fillText('2025/08/17', 1280 / 2, 650);
+            },
+            // Slide 2: Overview
+            () => {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 1280, 720);
+                ctx.fillStyle = '#4A148C';
+                ctx.textAlign = 'left';
+                ctx.font = 'bold 52px sans-serif';
+                ctx.fillText('1. Roo Codeの主な設定項目', 60, 120);
+                ctx.fillStyle = '#333';
+                ctx.font = '40px sans-serif';
+                const items = [
+                    '・Auto-Approve (自動承認)',
+                    '・Browser (Webブラウジング)',
+                    '・Checkpoints (チェックポイント)',
+                    '・Context (コンテキスト)',
+                    '・Prompts (プロンプト)'
+                ];
+                items.forEach((item, index) => {
+                    ctx.fillText(item, 100, 250 + index * 80);
+                });
+                ctx.font = '32px sans-serif';
+                ctx.textAlign = 'center';
+                wrapText(ctx, '各設定を理解し、自分の開発スタイルに合わせて最適化する方法を探る。', 1280/2, 650, 1100, 50);
+            },
+            // Slide 3: Auto-Approve
+            () => {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 1280, 720);
+                ctx.fillStyle = '#4A148C';
+                ctx.textAlign = 'left';
+                ctx.font = 'bold 52px sans-serif';
+                ctx.fillText('2. Auto-Approve：定型作業の高速化', 60, 120);
+                
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillText('これは何？', 100, 220);
+                ctx.font = '32px sans-serif';
+                wrapText(ctx, 'AIによるファイル編集やコマンド実行の確認ダイアログを自動で承認する機能。', 120, 280, 1000, 50);
+
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillText('どう便利？', 100, 400);
+                ctx.font = '32px sans-serif';
+                wrapText(ctx, '信頼できる決まった作業（例：npm install）の確認クリックをなくし、ワークフローをスムーズにする。', 120, 460, 1000, 50);
+                
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillText('方針', 100, 580);
+                ctx.font = '32px sans-serif';
+                wrapText(ctx, 'まずは手動で使い、AIの挙動を理解してから、安全な操作のみを自動化するのが賢明。', 120, 640, 1000, 50);
+            },
+            // Slide 4: Browser
+            () => {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 1280, 720);
+                ctx.fillStyle = '#4A148C';
+                ctx.textAlign = 'left';
+                ctx.font = 'bold 52px sans-serif';
+                ctx.fillText('3. Browser：AIに最新情報を与える', 60, 120);
+
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillText('疑問', 100, 220);
+                ctx.font = '32px sans-serif';
+                wrapText(ctx, '最新AIモデルはWeb検索機能を持つが、API経由では使えないのか？', 120, 280, 1000, 50);
+
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillText('答え', 100, 400);
+                ctx.font = '32px sans-serif';
+                wrapText(ctx, 'APIは純粋な「頭脳」。Webサイト版とは異なり、単体では検索機能を持たない。', 120, 460, 1000, 50);
+                
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillText('Roo Codeの役割', 100, 580);
+                ctx.font = '32px sans-serif';
+                wrapText(ctx, 'この設定をONにすると、Roo Codeが「ブラウザ」というツールをAIに提供し、最新情報へのアクセスを可能にする。', 120, 640, 1000, 50);
+            },
+            // Slide 5: Checkpoints
+            () => {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 1280, 720);
+                ctx.fillStyle = '#4A148C';
+                ctx.textAlign = 'left';
+                ctx.font = 'bold 52px sans-serif';
+                ctx.fillText('4. Checkpoints：試行錯誤のためのセーブ機能', 60, 120);
+
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillText('これは何？', 100, 220);
+                ctx.font = '32px sans-serif';
+                wrapText(ctx, 'AIとの会話や作業の状態を「セーブポイント」として保存する機能。', 120, 280, 1000, 50);
+
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillText('どう便利？', 100, 400);
+                ctx.font = '32px sans-serif';
+                wrapText(ctx, '複雑な開発途中で、うまくいっていた時点に一瞬で戻れる。これにより、やり直しの手間をなくし、大胆な試行錯誤を可能にする。', 120, 460, 1000, 50);
+                
+                ctx.font = 'bold 40px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#00695C';
+                ctx.fillText('AIとの共同作業における必須機能', 1280/2, 650);
+            },
+            // Slide 6: Context (Good)
+            () => {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 1280, 720);
+                ctx.fillStyle = '#4A148C';
+                ctx.textAlign = 'left';
+                ctx.font = 'bold 52px sans-serif';
+                ctx.fillText('5. Context：AIに「プロジェクトの仕様書」を渡す', 60, 120);
+
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillStyle = '#333';
+                ctx.fillText('これは何？', 100, 220);
+                ctx.font = '32px sans-serif';
+                wrapText(ctx, 'AIに常に読み込ませておくべきプロジェクトの背景情報（文脈）を設定する機能。', 120, 280, 1000, 50);
+
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillStyle = '#2E7D32';
+                ctx.fillText('✅ 含めるべき情報（良い例）', 100, 400);
+                ctx.font = '32px sans-serif';
+                ctx.fillStyle = '#333';
+                wrapText(ctx, '・プロジェクトの概要やアーキテクチャ\n・コーディング規約\n・データベースのスキーマ\n・ファイル構成の説明', 120, 460, 1000, 50);
+            },
+            // Slide 7: Context (Bad)
+            () => {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 1280, 720);
+                ctx.fillStyle = '#4A148C';
+                ctx.textAlign = 'left';
+                ctx.font = 'bold 52px sans-serif';
+                ctx.fillText('6. Context利用時の最重要注意事項', 60, 120);
+
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillStyle = '#333';
+                ctx.fillText('疑問', 100, 220);
+                ctx.font = '32px sans-serif';
+                wrapText(ctx, 'GitのパスワードやSSH接続情報もここに書くのか？', 120, 280, 1000, 50);
+
+                ctx.fillStyle = '#D50000';
+                ctx.fillRect(80, 380, 1120, 250);
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 48px sans-serif';
+                ctx.fillText('答え：絶対にダメ！ 🛑', 1280/2, 460);
+                ctx.font = '32px sans-serif';
+                wrapText(ctx, 'セキュリティリスク：パスワード等の秘密情報を外部サーバーに送信してはいけない。\n情報漏洩の危険性が極めて高い。', 1280/2, 530, 1000, 50);
+            },
+            // Slide 8: Summary
+            () => {
+                ctx.fillStyle = '#4A148C';
+                ctx.fillRect(0, 0, 1280, 720);
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 64px sans-serif';
+                ctx.fillText('まとめと今後の進め方', 1280 / 2, 120);
+                
+                ctx.textAlign = 'left';
+                ctx.font = 'bold 34px sans-serif';
+                ctx.fillText('・Auto-Approve:', 140, 250);
+                ctx.font = '30px sans-serif';
+                ctx.fillText('慣れてから慎重に設定。', 450, 250);
+
+                ctx.font = 'bold 34px sans-serif';
+                ctx.fillText('・Browser:', 140, 320);
+                ctx.font = '30px sans-serif';
+                ctx.fillText('ONにしてAIの能力を拡張。', 450, 320);
+                
+                ctx.font = 'bold 34px sans-serif';
+                ctx.fillText('・Checkpoints:', 140, 390);
+                ctx.font = '30px sans-serif';
+                ctx.fillText('積極的に活用し、試行錯誤を効率化。', 450, 390);
+
+                ctx.font = 'bold 34px sans-serif';
+                ctx.fillText('・Context:', 140, 460);
+                ctx.font = '30px sans-serif';
+                ctx.fillText('「仕様書」として活用し、秘密情報は厳禁。', 450, 460);
+                
+                ctx.font = 'bold 36px sans-serif';
+                ctx.fillStyle = '#FFD700';
+                ctx.textAlign = 'center';
+                ctx.fillText('次のステップ：まずは使い込み、徐々に自分用に最適化していく', 1280/2, 600);
+            },
+        ];
+
+        function drawSlide(slideIndex) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            slides[slideIndex]();
+            updateButtons();
+        }
+
+        function updateButtons() {
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                drawSlide(currentSlide);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                drawSlide(currentSlide);
+            }
+        });
+
+        drawSlide(currentSlide);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成AIを活用したWebアプリ開発フロー・インタラクティブガイド</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Light Amber, Dark Slate Text, Teal Accent) -->
+    <!-- Application Structure Plan: A single-page, vertical scrolling app with a sticky navigation bar. The core is an interactive HTML/CSS flowchart replacing the static Mermaid diagram, allowing users to explore the development process non-linearly. This structure turns a static presentation into an engaging, explorable guide, which is better for understanding a complex workflow. -->
+    <!-- Visualization & Content Choices: Report Info: Workflow Diagram -> Goal: Organize/Show Process -> Viz: Interactive HTML/CSS Flowchart -> Interaction: Hover/click on nodes to reveal details -> Justification: Enhances understanding by providing layered information and encouraging user exploration. Report Info: Tool Lists -> Goal: Inform -> Viz: Interactive Cards -> Interaction: Hover effects -> Justification: Visually appealing and organized. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+            background-color: #FFFCF5; /* Warm Neutral Background */
+            color: #334155; /* Dark Slate Text */
+        }
+        .accent-color { color: #14B8A6; }
+        .bg-accent { background-color: #14B8A6; }
+        .border-accent { border-color: #14B8A6; }
+        .flow-node {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .flow-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .flow-line {
+            position: relative;
+            height: 2rem;
+            width: 2px;
+            background-color: #94A3B8;
+            margin: 0 auto;
+        }
+        .flow-line::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #94A3B8;
+        }
+        .nav-link.active {
+            color: #14B8A6;
+            font-weight: 700;
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header id="header" class="bg-amber-50/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-slate-700">開発フローガイド</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#section-1" class="nav-link text-slate-600 hover:text-teal-500 transition-colors">現状と課題</a>
+                <a href="#section-2" class="nav-link text-slate-600 hover:text-teal-500 transition-colors">理想のワークフロー</a>
+                <a href="#section-3" class="nav-link text-slate-600 hover:text-teal-500 transition-colors">開発</a>
+                <a href="#section-4" class="nav-link text-slate-600 hover:text-teal-500 transition-colors">テスト & デプロイ</a>
+                <a href="#section-5" class="nav-link text-slate-600 hover:text-teal-500 transition-colors">運用 & 環境構築</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Hero Section -->
+        <section class="text-center mb-24">
+            <h2 class="text-4xl md:text-5xl font-bold text-slate-800 mb-4">生成AIを活用した<br class="md:hidden">次世代Webアプリ開発フロー</h2>
+            <p class="text-lg text-slate-600 max-w-3xl mx-auto">AIを開発パートナーとし、コーディングからデプロイ、運用までをシームレスに自動化する、新しい開発スタイルを探求します。</p>
+        </section>
+
+        <!-- Section 1: 現状と課題 -->
+        <section id="section-1" class="mb-24 fade-in">
+            <h3 class="text-3xl font-bold text-center mb-2 accent-color">1. 現状と課題</h3>
+            <p class="text-center text-slate-600 mb-12">まず、私たちが直面している一般的な開発の課題を整理します。これらの課題を解決することが、新しいワークフローの目的です。</p>
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h4 class="font-bold text-xl mb-2 text-slate-700">現状</h4>
+                    <ul class="list-disc list-inside space-y-2 text-slate-600">
+                        <li>Python (Flask) でWebアプリケーションを開発</li>
+                        <li>WebARENA上にテスト環境と本番環境を保有</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h4 class="font-bold text-xl mb-2 text-slate-700">従来の課題</h4>
+                    <ul class="list-disc list-inside space-y-2 text-slate-600">
+                        <li>コーディング、デバッグ、テストに時間がかかる</li>
+                        <li>デプロイが手動で手間がかかる</li>
+                        <li>ドキュメント作成が非効率</li>
+                        <li>AIに都度背景を説明する必要がある</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: 目指す理想のワークフロー -->
+        <section id="section-2" class="mb-24 fade-in">
+            <h3 class="text-3xl font-bold text-center mb-2 accent-color">2. 目指す理想のワークフロー</h3>
+            <p class="text-center text-slate-600 mb-12">これらの課題を解決するため、「楽して開発」を実現する自動化されたワークフローを目指します。AIを単なるツールではなく、開発プロセス全体を理解するパートナーとして位置づけます。</p>
+            <div class="flex flex-col lg:flex-row gap-8 items-start">
+                <div class="w-full lg:w-1/2 flex flex-col items-center">
+                    <h4 class="font-bold text-2xl mb-6 text-slate-700">全体像</h4>
+                    <div id="workflow-diagram" class="w-full max-w-sm">
+                        <!-- Interactive Flowchart -->
+                        <div class="flow-node bg-white p-4 rounded-lg shadow-md text-center" data-node="A">自然言語でタスクを指示</div>
+                        <div class="flow-line"></div>
+                        <div class="flow-node bg-white p-4 rounded-lg shadow-md text-center" data-node="B">Roo Codeによるコード生成</div>
+                        <div class="flow-line"></div>
+                        <div class="flow-node bg-white p-4 rounded-lg shadow-md text-center" data-node="C">Gitへのコミット</div>
+                        <div class="flow-line"></div>
+                        <div class="flow-node bg-teal-100 p-4 rounded-lg shadow-md text-center" data-node="D">テストサーバーへの自動デプロイ</div>
+                        <div class="flow-line"></div>
+                        <div class="flow-node bg-teal-100 p-4 rounded-lg shadow-md text-center" data-node="E">動作確認・テスト</div>
+                        <div class="flow-line"></div>
+                        <div class="flow-node bg-emerald-100 p-4 rounded-lg shadow-md text-center" data-node="F">本番サーバーへの自動デプロイ</div>
+                        <div class="flow-line"></div>
+                        <div class="flow-node bg-emerald-100 p-4 rounded-lg shadow-md text-center" data-node="G">アプリケーションリリース・運用</div>
+                        <div class="flow-line"></div>
+                        <div class="flow-node bg-emerald-100 p-4 rounded-lg shadow-md text-center" data-node="H">ログ解析・ドキュメント作成</div>
+                    </div>
+                </div>
+                <div id="workflow-details" class="w-full lg:w-1/2 p-6 bg-white rounded-xl shadow-lg sticky top-24">
+                    <h4 class="font-bold text-xl mb-4 text-slate-800">ステップ詳細</h4>
+                    <div id="details-content" class="text-slate-600">
+                        <p>上の図の各ステップをクリックまたはホバーすると、ここに詳細が表示されます。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: 開発フェーズ -->
+        <section id="section-3" class="mb-24 fade-in">
+            <h3 class="text-3xl font-bold text-center mb-2 accent-color">3. 開発フェーズ</h3>
+            <p class="text-center text-slate-600 mb-12">AIによる自動化とプロジェクト全体のコンテキスト保持を中心に、コーディング作業を劇的に効率化します。</p>
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <h4 class="font-bold text-2xl mb-6 text-slate-700">使用ツール</h4>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center mb-8">
+                    <div class="p-4 bg-amber-50 rounded-lg">
+                        <div class="text-4xl mb-2">💻</div>
+                        <span class="font-semibold">VS Code</span>
+                    </div>
+                    <div class="p-4 bg-amber-50 rounded-lg">
+                        <div class="text-4xl mb-2">🚀</div>
+                        <span class="font-semibold">Roo Code</span>
+                    </div>
+                    <div class="p-4 bg-amber-50 rounded-lg">
+                        <div class="text-4xl mb-2">🔄</div>
+                        <span class="font-semibold">OpenRouter</span>
+                    </div>
+                    <div class="p-4 bg-amber-50 rounded-lg">
+                        <div class="text-4xl mb-2">🌿</div>
+                        <span class="font-semibold">Git / GitHub</span>
+                    </div>
+                </div>
+                <h4 class="font-bold text-2xl mb-6 text-slate-700">プロセス</h4>
+                <ol class="list-decimal list-inside space-y-4 text-slate-600">
+                    <li>VS Code上でRoo Codeに自然言語でタスクを指示します。</li>
+                    <li>Roo CodeがOpenRouter経由で最適なAIモデルを選択し、コードを自動生成します。</li>
+                    <li>プロジェクトのコンテキスト（ファイル構造、過去の変更履歴など）をRoo Codeが自動で保持します。</li>
+                    <li>GitHubでソースコードと、デプロイなどの自動化設定ファイルを一元管理します。</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 4: テスト＆デプロイフェーズ -->
+        <section id="section-4" class="mb-24 fade-in">
+            <h3 class="text-3xl font-bold text-center mb-2 accent-color">4. テスト & デプロイフェーズ</h3>
+            <p class="text-center text-slate-600 mb-12">継続的インテグレーション(CI)と継続的デプロイメント(CD)の考え方を取り入れ、リリースプロセスを自動化・高速化します。</p>
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <h4 class="font-bold text-2xl mb-6 text-slate-700">使用ツール</h4>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center mb-8">
+                    <div class="p-4 bg-teal-50 rounded-lg">
+                        <div class="text-4xl mb-2">🚀</div>
+                        <span class="font-semibold">Roo Code</span>
+                    </div>
+                    <div class="p-4 bg-teal-50 rounded-lg">
+                        <div class="text-4xl mb-2">🌿</div>
+                        <span class="font-semibold">Git / GitHub</span>
+                    </div>
+                    <div class="p-4 bg-teal-50 rounded-lg">
+                        <div class="text-4xl mb-2">☁️</div>
+                        <span class="font-semibold">WebARENA</span>
+                    </div>
+                    <div class="p-4 bg-teal-50 rounded-lg">
+                        <div class="text-4xl mb-2">🔑</div>
+                        <span class="font-semibold">SSH</span>
+                    </div>
+                </div>
+                <h4 class="font-bold text-2xl mb-6 text-slate-700">プロセス</h4>
+                <ol class="list-decimal list-inside space-y-4 text-slate-600">
+                    <li>開発完了後、Roo Codeに「テスト環境にデプロイして」と指示します。</li>
+                    <li>Roo Codeが自動でGitにコミットし、SSH経由でWebARENA上のテストサーバーに資材をアップロードします。</li>
+                    <li>動作確認後、「本番環境に資材をリリースして」と指示します。</li>
+                    <li>Gitにリリース用のタグが付けられ、SSH経由で本番サーバーに最終資材が安全にデプロイされます。</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 5: 運用フェーズと環境構築 -->
+        <section id="section-5" class="fade-in">
+            <h3 class="text-3xl font-bold text-center mb-2 accent-color">5. 運用 & 環境構築</h3>
+            <p class="text-center text-slate-600 mb-12">リリース後のドキュメント作成やログ管理も自動化し、次の開発サイクルに備えます。まずは最初のステップから始めましょう。</p>
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h4 class="font-bold text-2xl mb-6 text-slate-700">運用コンセプト</h4>
+                    <ul class="list-disc list-inside space-y-4 text-slate-600">
+                        <li>Gitのコミット履歴やタグ情報から、Roo Codeがリリースノートを自動生成します。</li>
+                        <li>サーバーログをRoo Codeに分析させ、異常検知やパフォーマンス改善に役立てます。</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg border-2 border-accent">
+                    <h4 class="font-bold text-2xl mb-6 text-slate-700">環境構築の最初のステップ</h4>
+                    <ol class="list-decimal list-inside space-y-4 text-slate-600 font-medium">
+                        <li>VS CodeにRoo Code拡張機能をインストールします。</li>
+                        <li>OpenRouterでアカウントを作成し、APIキーを取得します。</li>
+                        <li>Roo Codeの設定ファイルに、APIキーとWebARENAへのSSH接続情報を記述します。</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const workflowNodes = document.querySelectorAll('.flow-node');
+            const detailsContent = document.getElementById('details-content');
+
+            const detailsMap = {
+                'A': { title: '1. 自然言語でタスクを指示', text: '開発者が「ユーザー認証機能を追加して」のような具体的なタスクを、普段話す言葉でAIに指示します。' },
+                'B': { title: '2. Roo Codeによるコード生成', text: '指示を受け取ったRoo Codeが、OpenRouter経由で最適なAIモデル（GPT-4など）を呼び出し、必要なコードを自動で生成・編集します。' },
+                'C': { title: '3. Gitへのコミット', text: '生成されたコードが完成したら、Roo Codeが適切なコミットメッセージと共にGitリポジトリに変更を記録します。' },
+                'D': { title: '4. テストサーバーへの自動デプロイ', text: 'コミットをトリガーに、または「テスト環境にデプロイして」という指示で、最新のコードが自動でテストサーバーにアップロードされます。' },
+                'E': { title: '5. 動作確認・テスト', text: '開発者はテスト環境で新機能の動作を確認します。ここでもAIに「テストを実行して」と指示し、自動テストを行うことも可能です。' },
+                'F': { title: '6. 本番サーバーへの自動デプロイ', text: 'テストが完了したら、「本番環境にリリースして」という簡単な指示で、最終的なコードが本番サーバーに安全にデプロイされます。' },
+                'G': { title: '7. アプリケーションリリース・運用', text: 'ユーザーが新しい機能を利用できるようになります。運用中もAIがサーバーの状態を監視します。' },
+                'H': { title: '8. ログ解析・ドキュメント作成', text: 'Gitの履歴からリリースノートを自動生成したり、サーバーログをAIに分析させて問題点を洗い出したりします。' }
+            };
+
+            function updateDetails(nodeId) {
+                const detail = detailsMap[nodeId];
+                if (detail) {
+                    detailsContent.innerHTML = `
+                        <h5 class="font-bold text-lg mb-2 text-slate-700">${detail.title}</h5>
+                        <p>${detail.text}</p>
+                    `;
+                }
+            }
+
+            workflowNodes.forEach(node => {
+                node.addEventListener('mouseenter', () => updateDetails(node.dataset.node));
+                node.addEventListener('click', () => updateDetails(node.dataset.node));
+            });
+            
+            updateDetails('A');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section[id]');
+            
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+        });
+    </script>
+
+</body>
+</html>
