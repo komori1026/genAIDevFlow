@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  # 1つ目のサービス：Webアプリケーション
+  webapp:
+    build: ./app-01-hello-flask
+    container_name: hello-flask-app
+    restart: always
+
+  # 2つ目のサービス：受付・交通整理係
+  nginx:
+    build: ./nginx
+    container_name: reverse-proxy
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - webapp
