@@ -7,7 +7,13 @@ services:
     container_name: hello-flask-app
     restart: always
 
-  # 2つ目のサービス：受付・交通整理係
+  # 2つ目のサービス：テトリスゲーム
+  tetris:
+    build: ./app-02-tetris
+    container_name: tetris-game
+    restart: always
+
+  # 3つ目のサービス：受付・交通整理係
   nginx:
     build: ./nginx
     container_name: reverse-proxy
