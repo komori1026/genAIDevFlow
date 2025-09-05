@@ -12,7 +12,7 @@ services:
     build: ./nginx
     container_name: reverse-proxy
     ports:
-      - "80:80"
+      - "8080:80"
     restart: always
     depends_on:
       - webapp

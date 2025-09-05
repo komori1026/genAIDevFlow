@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  # nginxサービスの本番用設定だけを上書き
+  nginx:
+    container_name: reverse-proxy-prod # コンテナ名も変えておくと分かりやすい
+    ports:
+      - "80:80" # 本番なので80番ポートを使用
