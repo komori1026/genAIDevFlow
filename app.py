@@ -31,7 +31,7 @@ def get_current_time_with_greeting():
     current_time_str = jst_now.strftime("%Y年%m月%d日 %H時%M分%S秒")
     
     # 挨拶と現在時刻を返す
-    return f"{greeting}！<br>現在の日本時間: {current_time_str} ★★"
+    return f"{greeting}！<br>現在の日本時間: {current_time_str} ★☆★☆★"
 
 # アプリケーションを実行
 if __name__ == '__main__':
