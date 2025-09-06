@@ -6,3 +6,4 @@ services:
     container_name: reverse-proxy-prod # コンテナ名も変えておくと分かりやすい
     ports:
       - "80:80" # 本番なので80番ポートを使用
+      - "443:443" # ★本番用のHTTPSポートを追記★
