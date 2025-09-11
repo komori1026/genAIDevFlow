@@ -16,8 +16,16 @@
 
     <style>
         body {
-            font-family: 'Noto Sans JP', sans-serif;
-            -webkit-tap-highlight-color: transparent; /* スマホでのタップ時のハイライトを無効化 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         .font-rounded {
             font-family: 'M PLUS Rounded 1c', sans-serif;
@@ -34,21 +42,106 @@
             width: 100%;
         }
         
-        /* -- 回答ボタンのスタイル -- */
-        .pref-button {
+        /* -- 新しい日本地図デザインのCSS -- */
+        .japan-map-grid {
+            display: grid;
+            grid-template-columns: repeat(30, 1fr);
+            grid-template-rows: repeat(28, 1fr);
+            width: 100%;
+            max-width: 1000px;
+            height: 85vh; 
+            gap: 4px;
+        }
+
+        .prefecture-btn {
+            background-color: #ffffff;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
             transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 2px;
         }
-        .pref-button.correct {
-            background-color: #4ade80; /* green-400 */
+
+        .prefecture-btn:hover {
+            transform: translateY(-2px);
+            background-color: #007bff;
             color: white;
+            border-color: #0056b3;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        #hokkaido { grid-area: 1 / 26 / 5 / 31; }
+        #aomori   { grid-area: 6 / 26 / 8 / 30; }
+        #iwate    { grid-area: 8 / 28 / 11 / 30; }
+        #akita    { grid-area: 8 / 26 / 11 / 28; }
+        #miyagi   { grid-area: 11 / 28 / 14 / 30; }
+        #yamagata { grid-area: 11 / 26 / 14 / 28; }
+        #fukushima{ grid-area: 14 / 26 / 16 / 30; }
+        #ibaraki  { grid-area: 16 / 28 / 19 / 30; }
+        #tochigi  { grid-area: 16 / 26 / 18 / 28; }
+        #gunma    { grid-area: 16 / 24 / 18 / 26; }
+        #saitama  { grid-area: 18 / 24 / 20 / 26; }
+        #chiba    { grid-area: 19 / 28 / 22 / 30; }
+        #tokyo    { grid-area: 18 / 26 / 20 / 28; }
+        #kanagawa { grid-area: 20 / 24 / 22 / 26; }
+        #niigata  { grid-area: 14 / 22 / 16 / 26; }
+        #toyama   { grid-area: 14 / 20 / 16 / 22; }
+        #ishikawa { grid-area: 14 / 18 / 16 / 20; }
+        #fukui    { grid-area: 16 / 18 / 18 / 20; }
+        #nagano   { grid-area: 16 / 22 / 18 / 24; }
+        #yamanashi{ grid-area: 18 / 22 / 20 / 24; }
+        #shizuoka { grid-area: 20 / 22 / 22 / 24; }
+        #aichi    { grid-area: 20 / 20 / 22 / 22; }
+        #gifu     { grid-area: 16 / 20 / 20 / 22; }
+        #mie      { grid-area: 20 / 18 / 23 / 20; }
+        #shiga    { grid-area: 18 / 18 / 20 / 20; }
+        #kyoto    { grid-area: 16 / 16 / 18 / 18; }
+        #nara     { grid-area: 20 / 16 / 22 / 18; }
+        #wakayama { grid-area: 22 / 16 / 24 / 18; }
+        #osaka    { grid-area: 18 / 16 / 20 / 18; }
+        #hyogo    { grid-area: 16 / 14 / 20 / 16; }
+        #tottori  { grid-area: 16 / 12 / 18 / 14; }
+        #okayama  { grid-area: 18 / 12 / 20 / 14; }
+        #shimane  { grid-area: 16 / 10 / 18 / 12; }
+        #hiroshima{ grid-area: 18 / 10 / 20 / 12; }
+        #yamaguchi{ grid-area: 18 / 8 / 20 / 10; }
+        #kagawa   { grid-area: 21 / 13 / 23 / 15; }
+        #tokushima{ grid-area: 23 / 13 / 25 / 15; }
+        #ehime    { grid-area: 21 / 10 / 23 / 13; }
+        #kochi    { grid-area: 23 / 10 / 25 / 13; }
+        #fukuoka  { grid-area: 18 / 5 / 20 / 7; }
+        #oita     { grid-area: 20 / 5 / 22 / 7; }
+        #saga     { grid-area: 18 / 3 / 20 / 5; }
+        #nagasaki { grid-area: 18 / 1 / 20 / 3; }
+        #kumamoto { grid-area: 20 / 3 / 22 / 5; }
+        #miyazaki { grid-area: 22 / 5 / 24 / 7; }
+        #kagoshima{ grid-area: 22 / 3 / 24 / 5; }
+        #okinawa  { grid-area: 25 / 1 / 27 / 3; }
+
+
+        /* -- 回答後のボタンスタイル -- */
+        .prefecture-btn.correct {
+            background-color: #4ade80 !important; /* green-400 */
+            color: white !important;
             transform: scale(1.05);
+            border-color: #2f855a !important;
         }
-        .pref-button.incorrect {
-            background-color: #f87171; /* red-400 */
-            color: white;
+        .prefecture-btn.incorrect {
+            background-color: #f87171 !important; /* red-400 */
+            color: white !important;
             opacity: 0.6;
+            border-color: #c53030 !important;
         }
-        .pref-button.disabled {
+        .prefecture-btn.disabled {
             pointer-events: none;
         }
 
@@ -163,8 +256,33 @@
                     <span id="city-name-question" class="font-rounded"></span>はどの都道府県？
                 </p>
 
-                <div id="prefecture-buttons-container" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2 mt-6">
-                    </div>
+                <div class="japan-map-grid">
+                    <div id="hokkaido"  class="prefecture-btn" data-prefecture="北海道">北海道</div>
+                    <div id="aomori"    class="prefecture-btn" data-prefecture="青森県">青森</div><div id="iwate" class="prefecture-btn" data-prefecture="岩手県">岩手</div>
+                    <div id="miyagi"    class="prefecture-btn" data-prefecture="宮城県">宮城</div><div id="akita" class="prefecture-btn" data-prefecture="秋田県">秋田</div>
+                    <div id="yamagata"  class="prefecture-btn" data-prefecture="山形県">山形</div><div id="fukushima" class="prefecture-btn" data-prefecture="福島県">福島</div>
+                    <div id="ibaraki"   class="prefecture-btn" data-prefecture="茨城県">茨城</div><div id="tochigi" class="prefecture-btn" data-prefecture="栃木県">栃木</div>
+                    <div id="gunma"     class="prefecture-btn" data-prefecture="群馬県">群馬</div><div id="saitama" class="prefecture-btn" data-prefecture="埼玉県">埼玉</div>
+                    <div id="chiba"     class="prefecture-btn" data-prefecture="千葉県">千葉</div><div id="tokyo" class="prefecture-btn" data-prefecture="東京都">東京</div>
+                    <div id="kanagawa"  class="prefecture-btn" data-prefecture="神奈川県">神奈川</div><div id="niigata" class="prefecture-btn" data-prefecture="新潟県">新潟</div>
+                    <div id="toyama"    class="prefecture-btn" data-prefecture="富山県">富山</div><div id="ishikawa" class="prefecture-btn" data-prefecture="石川県">石川</div>
+                    <div id="fukui"     class="prefecture-btn" data-prefecture="福井県">福井</div><div id="yamanashi" class="prefecture-btn" data-prefecture="山梨県">山梨</div>
+                    <div id="nagano"    class="prefecture-btn" data-prefecture="長野県">長野</div><div id="gifu"      class="prefecture-btn" data-prefecture="岐阜県">岐阜</div>
+                    <div id="shizuoka"  class="prefecture-btn" data-prefecture="静岡県">静岡</div><div id="aichi" class="prefecture-btn" data-prefecture="愛知県">愛知</div>
+                    <div id="mie"       class="prefecture-btn" data-prefecture="三重県">三重</div><div id="shiga" class="prefecture-btn" data-prefecture="滋賀県">滋賀</div>
+                    <div id="kyoto"     class="prefecture-btn" data-prefecture="京都府">京都</div><div id="osaka" class="prefecture-btn" data-prefecture="大阪府">大阪</div>
+                    <div id="hyogo"     class="prefecture-btn" data-prefecture="兵庫県">兵庫</div><div id="nara"      class="prefecture-btn" data-prefecture="奈良県">奈良</div>
+                    <div id="wakayama"  class="prefecture-btn" data-prefecture="和歌山県">和歌山</div><div id="tottori" class="prefecture-btn" data-prefecture="鳥取県">鳥取</div>
+                    <div id="shimane"   class="prefecture-btn" data-prefecture="島根県">島根</div><div id="okayama" class="prefecture-btn" data-prefecture="岡山県">岡山</div>
+                    <div id="hiroshima" class="prefecture-btn" data-prefecture="広島県">広島</div><div id="yamaguchi" class="prefecture-btn" data-prefecture="山口県">山口</div>
+                    <div id="tokushima" class="prefecture-btn" data-prefecture="徳島県">徳島</div><div id="kagawa"    class="prefecture-btn" data-prefecture="香川県">香川</div>
+                    <div id="ehime"     class="prefecture-btn" data-prefecture="愛媛県">愛媛</div><div id="kochi"     class="prefecture-btn" data-prefecture="高知県">高知</div>
+                    <div id="fukuoka"   class="prefecture-btn" data-prefecture="福岡県">福岡</div><div id="saga"      class="prefecture-btn" data-prefecture="佐賀県">佐賀</div>
+                    <div id="nagasaki"  class="prefecture-btn" data-prefecture="長崎県">長崎</div><div id="kumamoto"  class="prefecture-btn" data-prefecture="熊本県">熊本</div>
+                    <div id="oita"      class="prefecture-btn" data-prefecture="大分県">大分</div><div id="miyazaki"  class="prefecture-btn" data-prefecture="宮崎県">宮崎</div>
+                    <div id="kagoshima" class="prefecture-btn" data-prefecture="鹿児島県">鹿児島</div><div id="okinawa" class="prefecture-btn" data-prefecture="沖縄県">沖縄</div>
+                </div>
+
              </div>
              <div class="mt-6 text-center">
                 <button id="back-to-settings-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-full text-sm transition-colors">
@@ -194,7 +312,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- グローバル変数・定数 ---
-            const API_URL = 'cities.json'; // ローカルファイルを参照
+            const API_URL = 'cities.json'; 
             const PREFECTURES = [
                 '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
                 '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
@@ -227,7 +345,7 @@
             const progressIndicatorEl = document.getElementById('progress-indicator');
             const feedbackMessageEl = document.getElementById('feedback-message');
             const cityNameQuestionEl = document.getElementById('city-name-question');
-            const prefectureButtonsContainer = document.getElementById('prefecture-buttons-container');
+            const prefectureButtonsContainer = document.querySelector('.japan-map-grid');
             const correctAnswersCountEl = document.getElementById('correct-answers-count');
             const totalQuestionsCountEl = document.getElementById('total-questions-count');
             const resultsListEl = document.getElementById('results-list');
@@ -326,7 +444,7 @@
                     return;
                 }
 
-                const buttons = prefectureButtonsContainer.querySelectorAll('.pref-button');
+                const buttons = prefectureButtonsContainer.querySelectorAll('.prefecture-btn');
                 buttons.forEach(btn => {
                     btn.classList.remove('correct', 'incorrect', 'disabled');
                 });
@@ -340,14 +458,14 @@
 
             // 回答処理
             const handleAnswer = (e) => {
-                const clickedButton = e.target.closest('.pref-button');
+                const clickedButton = e.target.closest('.prefecture-btn');
                 if (!clickedButton || clickedButton.classList.contains('disabled')) return;
                 
                 const selectedPrefecture = clickedButton.dataset.prefecture;
                 const currentQuestion = quizQuestions[currentQuestionIndex];
                 const isCorrect = selectedPrefecture === currentQuestion.prefecture;
 
-                const buttons = prefectureButtonsContainer.querySelectorAll('.pref-button');
+                const buttons = prefectureButtonsContainer.querySelectorAll('.prefecture-btn');
                 buttons.forEach(btn => btn.classList.add('disabled'));
 
                 if (isCorrect) {
@@ -388,7 +506,6 @@
                     resultEl.classList.add('p-3', 'rounded-lg', 'mb-2', 'flex', 'items-center', 'justify-between');
                     resultEl.classList.add(result.isCorrect ? 'bg-green-100' : 'bg-red-100');
                     
-                    // Google Mapsの検索URLを生成
                     const mapQuery = encodeURIComponent(`${result.question.prefecture} ${result.question.city}`);
                     const mapUrl = `https://www.google.com/maps?q=${mapQuery}`;
 
@@ -415,17 +532,6 @@
                 switchScreen('settings');
             };
 
-            // 都道府県ボタン生成
-            const createPrefectureButtons = () => {
-                PREFECTURES.forEach(pref => {
-                    const button = document.createElement('button');
-                    button.textContent = pref;
-                    button.dataset.prefecture = pref;
-                    button.classList.add('pref-button', 'bg-white', 'hover:bg-blue-100', 'text-gray-700', 'font-semibold', 'py-2', 'px-1', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'text-sm');
-                    prefectureButtonsContainer.appendChild(button);
-                });
-            };
-
             // --- 初期化処理 ---
             const initializeApp = async () => {
                 try {
@@ -449,8 +555,6 @@
                     createSlider('population', 0, maxPopulation, 0, maxPopulation, 1000, formatNumber);
                     createSlider('density', 0, maxDensity, 0, maxDensity, 100, (v) => v.toLocaleString());
                     
-                    createPrefectureButtons();
-
                     questionCountBtns.forEach(btn => {
                         btn.addEventListener('click', () => {
                             quizSettings.questionCount = parseInt(btn.dataset.questions, 10);
