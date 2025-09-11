@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>市区町村クイズ</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- noUiSlider (範囲スライダーライブラリ) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* スマホでのタップ時のハイライトを無効化 */
+        }
+        .font-rounded {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+        /* -- 画面切り替えのアニメーション -- */
+        .screen {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        .screen.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+            position: absolute;
+            width: 100%;
+        }
+        
+        /* -- 回答ボタンのスタイル -- */
+        .pref-button {
+            transition: all 0.2s ease;
+        }
+        .pref-button.correct {
+            background-color: #4ade80; /* green-400 */
+            color: white;
+            transform: scale(1.05);
+        }
+        .pref-button.incorrect {
+            background-color: #f87171; /* red-400 */
+            color: white;
+            opacity: 0.6;
+        }
+        .pref-button.disabled {
+            pointer-events: none;
+        }
+
+
+        /* -- noUiSliderのスタイル調整 -- */
+        .noUi-connect { background: #3b82f6; } /* blue-500 */
+        .noUi-handle { border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .noUi-handle:focus { outline: none; }
+        .noUi-target { border-radius: 9999px; }
+        .noUi-horizontal { height: 10px; }
+        .noUi-horizontal .noUi-handle { width: 24px; height: 24px; right: -12px; top: -7px; }
+
+        /* -- ローディングスピナー -- */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl mx-auto relative">
+
+        <!-- ===== ローディング画面 ===== -->
+        <div id="loading-screen" class="screen text-center">
+            <div class="loader inline-block"></div>
+            <p class="mt-4 text-gray-600">市区町村データを読み込み中...</p>
+        </div>
+
+        <!-- ===== トップ画面 (クイズ設定) ===== -->
+        <div id="settings-screen" class="screen hidden">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                <h1 class="text-2xl md:text-3xl font-bold text-center mb-6 font-rounded">市区町村クイズ 設定</h1>
+
+                <div class="space-y-8">
+                    <!-- 出題数 -->
+                    <div>
+                        <label class="block text-lg font-semibold mb-3 text-gray-700">出題数</label>
+                        <div class="flex justify-center space-x-2">
+                            <button data-questions="10" class="setting-btn question-count-btn bg-gray-200 px-4 py-2 rounded-full font-semibold">10問</button>
+                            <button data-questions="20" class="setting-btn question-count-btn bg-blue-500 text-white px-4 py-2 rounded-full font-semibold">20問</button>
+                            <button data-questions="50" class="setting-btn question-count-btn bg-gray-200 px-4 py-2 rounded-full font-semibold">50問</button>
+                        </div>
+                    </div>
+
+                    <!-- 出題条件 -->
+                    <div>
+                        <h2 class="text-lg font-semibold mb-4 text-gray-700">出題範囲の絞り込み</h2>
+                        <div class="space-y-6">
+                            <!-- 面積 -->
+                            <div>
+                                <div class="flex justify-between items-baseline mb-2">
+                                    <label class="font-semibold">面積 (km²)</label>
+                                    <span id="area-range-label" class="text-sm text-gray-600"></span>
+                                </div>
+                                <div id="area-slider" class="mx-2"></div>
+                            </div>
+                            <!-- 人口 -->
+                            <div>
+                                <div class="flex justify-between items-baseline mb-2">
+                                    <label class="font-semibold">人口 (人)</label>
+                                    <span id="population-range-label" class="text-sm text-gray-600"></span>
+                                </div>
+                                <div id="population-slider" class="mx-2"></div>
+                            </div>
+                            <!-- 人口密度 -->
+                            <div>
+                                <div class="flex justify-between items-baseline mb-2">
+                                    <label class="font-semibold">人口密度 (人/km²)</label>
+                                    <span id="density-range-label" class="text-sm text-gray-600"></span>
+                                </div>
+                                <div id="density-slider" class="mx-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-10 text-center">
+                    <p class="mb-2 text-gray-600">対象市区町村数: <span id="filtered-cities-count" class="font-bold text-lg">0</span></p>
+                    <button id="start-quiz-btn" class="w-full max-w-xs bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full text-lg transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none">
+                        クイズ開始
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== クイズ画面 ===== -->
+        <div id="quiz-screen" class="screen hidden">
+             <div class="bg-white p-4 md:p-8 rounded-2xl shadow-lg">
+                <div class="mb-4 flex justify-between items-center">
+                    <h2 id="progress-indicator" class="text-lg font-bold font-rounded">1問目 / 20問</h2>
+                    <div id="feedback-message" class="text-xl font-bold text-center h-8"></div>
+                </div>
+
+                <p class="text-center text-2xl md:text-4xl font-bold my-6 h-20 flex items-center justify-center">
+                    <span id="city-name-question" class="font-rounded"></span>はどの都道府県？
+                </p>
+
+                <!-- 都道府県ボタンコンテナ -->
+                <div id="prefecture-buttons-container" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2 mt-6">
+                    <!-- ボタンはJavaScriptで生成されます -->
+                </div>
+             </div>
+        </div>
+
+
+        <!-- ===== 結果画面 ===== -->
+        <div id="results-screen" class="screen hidden">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg text-center">
+                <h1 class="text-3xl font-bold mb-4 font-rounded">クイズ結果</h1>
+                <p class="text-5xl font-bold my-6"><span id="correct-answers-count"></span> / <span id="total-questions-count"></span></p>
+
+                <div id="results-list" class="mt-8 text-left max-h-80 overflow-y-auto pr-2">
+                    <!-- 結果はJavaScriptで生成されます -->
+                </div>
+
+                <button id="restart-quiz-btn" class="mt-8 w-full max-w-xs bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full text-lg transition-transform transform hover:scale-105">
+                    もう一度挑戦する
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- グローバル変数・定数 ---
+            const API_URL = 'cities.json'; // ローカルファイルを参照
+            const PREFECTURES = [
+                '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
+                '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+                '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
+                '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
+                '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
+                '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
+                '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'
+            ];
+            let allCities = [];
+            let filteredCities = [];
+            let quizQuestions = [];
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let quizResults = [];
+            let quizSettings = {
+                questionCount: 20
+            };
+
+            // --- DOM要素 ---
+            const screens = {
+                loading: document.getElementById('loading-screen'),
+                settings: document.getElementById('settings-screen'),
+                quiz: document.getElementById('quiz-screen'),
+                results: document.getElementById('results-screen')
+            };
+            const questionCountBtns = document.querySelectorAll('.question-count-btn');
+            const startQuizBtn = document.getElementById('start-quiz-btn');
+            const filteredCitiesCountEl = document.getElementById('filtered-cities-count');
+            const progressIndicatorEl = document.getElementById('progress-indicator');
+            const feedbackMessageEl = document.getElementById('feedback-message');
+            const cityNameQuestionEl = document.getElementById('city-name-question');
+            const prefectureButtonsContainer = document.getElementById('prefecture-buttons-container');
+            const correctAnswersCountEl = document.getElementById('correct-answers-count');
+            const totalQuestionsCountEl = document.getElementById('total-questions-count');
+            const resultsListEl = document.getElementById('results-list');
+            const restartQuizBtn = document.getElementById('restart-quiz-btn');
+
+            // --- スライダー要素 ---
+            const sliders = {
+                area: document.getElementById('area-slider'),
+                population: document.getElementById('population-slider'),
+                density: document.getElementById('density-slider')
+            };
+            const labels = {
+                area: document.getElementById('area-range-label'),
+                population: document.getElementById('population-range-label'),
+                density: document.getElementById('density-range-label')
+            };
+            let sliderInstances = {};
+
+            // --- 関数 ---
+
+            // 画面切り替え
+            const switchScreen = (screenName) => {
+                Object.values(screens).forEach(screen => {
+                    // 完全に非表示にするためにstyle.displayも使うとより確実ですが、
+                    // 今回はopacityとtransformで制御しているためclassの付け外しで十分です。
+                    if (!screen.classList.contains('hidden')) {
+                         screen.classList.add('hidden');
+                    }
+                });
+                if (screens[screenName]) {
+                    screens[screenName].classList.remove('hidden');
+                }
+            };
+
+            // 数値をフォーマット (例: 10000 -> 1万)
+            const formatNumber = (num) => {
+                if (num >= 100000000) return `${(num / 100000000).toFixed(1)}億`;
+                if (num >= 10000) return `${Math.round(num / 10000)}万`;
+                return num.toLocaleString();
+            };
+            
+            // スライダーの初期化
+            const createSlider = (key, min, max, initialStart, initialEnd, step, format) => {
+                const slider = sliders[key];
+                const label = labels[key];
+
+                sliderInstances[key] = noUiSlider.create(slider, {
+                    start: [initialStart, initialEnd],
+                    connect: true,
+                    step: step,
+                    range: { 'min': min, 'max': max },
+                    format: {
+                        to: value => Math.round(value),
+                        from: value => Number(value)
+                    }
+                });
+                
+                // 'update'はスライダー作成時に自動で発火する
+                // 'change'はユーザーが操作を終えた時に発火する
+                sliderInstances[key].on('update', (values, handle) => {
+                    label.textContent = `${format(values[0])} ~ ${format(values[1])}`;
+                });
+                sliderInstances[key].on('change', filterCities); // ユーザー操作完了時にフィルタリング
+            };
+            
+            // 市区町村データのフィルタリング
+            const filterCities = () => {
+                // sliderInstancesがすべて準備できているか確認
+                if (!sliderInstances.area || !sliderInstances.population || !sliderInstances.density) {
+                    return; // まだ準備ができていなければ何もしない
+                }
+                const [minArea, maxArea] = sliderInstances.area.get();
+                const [minPop, maxPop] = sliderInstances.population.get();
+                const [minDensity, maxDensity] = sliderInstances.density.get();
+
+                filteredCities = allCities.filter(city => 
+                    city.area >= minArea && city.area <= maxArea &&
+                    city.population >= minPop && city.population <= maxPop &&
+                    city.density >= minDensity && city.density <= maxDensity
+                );
+                
+                filteredCitiesCountEl.textContent = filteredCities.length;
+                startQuizBtn.disabled = filteredCities.length < quizSettings.questionCount;
+            };
+
+            // クイズ開始処理
+            const startQuiz = () => {
+                // 問題をシャッフルして設定数だけ取り出す
+                quizQuestions = [...filteredCities].sort(() => 0.5 - Math.random()).slice(0, quizSettings.questionCount);
+                currentQuestionIndex = 0;
+                score = 0;
+                quizResults = [];
+                switchScreen('quiz');
+                askQuestion();
+            };
+
+            // 問題表示
+            const askQuestion = () => {
+                if (currentQuestionIndex >= quizQuestions.length) {
+                    showResults();
+                    return;
+                }
+
+                // ボタンの状態をリセット
+                const buttons = prefectureButtonsContainer.querySelectorAll('.pref-button');
+                buttons.forEach(btn => {
+                    btn.classList.remove('correct', 'incorrect', 'disabled');
+                });
+                feedbackMessageEl.textContent = '';
+
+
+                const currentQuestion = quizQuestions[currentQuestionIndex];
+                progressIndicatorEl.textContent = `${currentQuestionIndex + 1}問目 / ${quizQuestions.length}問`;
+                cityNameQuestionEl.textContent = currentQuestion.city;
+            };
+
+            // 回答処理
+            const handleAnswer = (e) => {
+                const clickedButton = e.target.closest('.pref-button');
+                if (!clickedButton || clickedButton.classList.contains('disabled')) return;
+                
+                const selectedPrefecture = clickedButton.dataset.prefecture;
+                const currentQuestion = quizQuestions[currentQuestionIndex];
+                const isCorrect = selectedPrefecture === currentQuestion.prefecture;
+
+                // 全てのボタンを無効化
+                const buttons = prefectureButtonsContainer.querySelectorAll('.pref-button');
+                buttons.forEach(btn => btn.classList.add('disabled'));
+
+                // フィードバック表示
+                if (isCorrect) {
+                    score++;
+                    feedbackMessageEl.textContent = '正解！';
+                    feedbackMessageEl.classList.remove('text-red-500');
+                    feedbackMessageEl.classList.add('text-green-500');
+                    clickedButton.classList.add('correct');
+                } else {
+                    feedbackMessageEl.textContent = `不正解... 正解は${currentQuestion.prefecture}`;
+                    feedbackMessageEl.classList.remove('text-green-500');
+                    feedbackMessageEl.classList.add('text-red-500');
+                    clickedButton.classList.add('incorrect');
+                    
+                    // 正解のボタンをハイライト
+                    const correctButton = prefectureButtonsContainer.querySelector(`[data-prefecture="${currentQuestion.prefecture}"]`);
+                    if (correctButton) {
+                        correctButton.classList.add('correct');
+                    }
+                }
+
+                quizResults.push({
+                    question: currentQuestion,
+                    selected: selectedPrefecture,
+                    isCorrect: isCorrect
+                });
+                
+                currentQuestionIndex++;
+                
+                setTimeout(askQuestion, 1500); // 1.5秒後に次の問題へ
+            };
+
+            // 結果表示
+            const showResults = () => {
+                switchScreen('results');
+                correctAnswersCountEl.textContent = score;
+                totalQuestionsCountEl.textContent = quizQuestions.length;
+                resultsListEl.innerHTML = '';
+                quizResults.forEach((result, index) => {
+                    const resultEl = document.createElement('div');
+                    resultEl.classList.add('p-3', 'rounded-lg', 'mb-2', 'flex', 'items-center', 'justify-between');
+                    resultEl.classList.add(result.isCorrect ? 'bg-green-100' : 'bg-red-100');
+                    
+                    resultEl.innerHTML = `
+                        <div>
+                            <p class="font-semibold">${index + 1}. ${result.question.city}</p>
+                            <p class="text-sm">正解: ${result.question.prefecture} / あなたの回答: ${result.selected}</p>
+                        </div>
+                        <div class="text-xl font-bold">
+                            ${result.isCorrect ? '⭕️' : '❌'}
+                        </div>
+                    `;
+                    resultsListEl.appendChild(resultEl);
+                });
+            };
+
+            // クイズリセット
+            const resetQuiz = () => {
+                switchScreen('settings');
+            };
+
+            // 都道府県ボタン生成
+            const createPrefectureButtons = () => {
+                PREFECTURES.forEach(pref => {
+                    const button = document.createElement('button');
+                    button.textContent = pref.replace(/([都道府県])/g, ''); // 末尾の都/道/府/県を削除
+                    button.dataset.prefecture = pref;
+                    button.classList.add('pref-button', 'bg-white', 'hover:bg-blue-100', 'text-gray-700', 'font-semibold', 'py-2', 'px-1', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'text-sm');
+                    prefectureButtonsContainer.appendChild(button);
+                });
+            };
+
+            // --- 初期化処理 ---
+            const initializeApp = async () => {
+                try {
+                    // 市区町村データを取得
+                    const response = await fetch(API_URL);
+                    if (!response.ok) throw new Error('API request failed');
+                    const rawData = await response.json();
+
+                    // データを整形
+                    allCities = rawData.map(d => ({
+                        prefecture: d.prefecture,
+                        city: d.city,
+                        population: d.population,
+                        area: d.area,
+                        density: d.density,
+                    })).filter(d => d.area > 0 && d.population > 0 && d.density > 0);
+
+                    // 各データの最大値を取得
+                    const maxArea = Math.ceil(Math.max(...allCities.map(c => c.area)));
+                    const maxPopulation = Math.ceil(Math.max(...allCities.map(c => c.population)));
+                    const maxDensity = Math.ceil(Math.max(...allCities.map(c => c.density)));
+
+                    // スライダーを初期化
+                    createSlider('area', 0, maxArea, 0, maxArea, 1, (v) => `${v.toLocaleString()} km²`);
+                    createSlider('population', 0, maxPopulation, 0, maxPopulation, 1000, formatNumber);
+                    createSlider('density', 0, maxDensity, 0, maxDensity, 100, (v) => v.toLocaleString());
+                    
+                    // 都道府県ボタンを生成
+                    createPrefectureButtons();
+
+                    // イベントリスナーを設定
+                    questionCountBtns.forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            quizSettings.questionCount = parseInt(btn.dataset.questions, 10);
+                            questionCountBtns.forEach(b => {
+                                b.classList.remove('bg-blue-500', 'text-white');
+                                b.classList.add('bg-gray-200');
+                            });
+                            btn.classList.add('bg-blue-500', 'text-white');
+                            filterCities();
+                        });
+                    });
+                    startQuizBtn.addEventListener('click', startQuiz);
+                    restartQuizBtn.addEventListener('click', resetQuiz);
+                    prefectureButtonsContainer.addEventListener('click', handleAnswer);
+                    
+                    // ★★★ 修正点 ★★★
+                    // すべてのスライダーが作成された後に、最初のフィルタリングを実行
+                    filterCities();
+                    switchScreen('settings');
+
+                } catch (error) {
+                    console.error("Initialization failed:", error);
+                    screens.loading.innerHTML = '<p class="text-red-500">データの読み込みに失敗しました。cities.jsonファイルが同じフォルダに存在するか確認してください。</p>';
+                }
+            };
+            
+            initializeApp();
+        });
+    </script>
+
+</body>
+</html>
+
