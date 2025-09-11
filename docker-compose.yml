@@ -13,7 +13,13 @@ services:
     container_name: tetris-game
     restart: always
 
-  # 3つ目のサービス：受付・交通整理係
+  # 3つ目のサービス：市区町村クイズ
+  geogue-shikucho:
+    build: ./app-03-geogue-shikucho
+    container_name: geogue-shikucho
+    restart: always
+
+  # 4つ目のサービス：受付・交通整理係
   nginx:
     build: ./nginx
     container_name: reverse-proxy
