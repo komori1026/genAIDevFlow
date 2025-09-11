@@ -5,14 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>市区町村クイズ</title>
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- noUiSlider (範囲スライダーライブラリ) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
@@ -55,6 +52,22 @@
             pointer-events: none;
         }
 
+        /* -- 正解・不正解フィードバックのスタイル -- */
+        #feedback-message {
+            transition: all 0.2s ease-in-out;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1.5em; /* フォントサイズを大きく */
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        #feedback-message.correct-feedback {
+            background-color: #4ade80; /* green-400 */
+        }
+        #feedback-message.incorrect-feedback {
+            background-color: #f87171; /* red-400 */
+        }
 
         /* -- noUiSliderのスタイル調整 -- */
         .noUi-connect { background: #3b82f6; } /* blue-500 */
@@ -83,33 +96,28 @@
 
     <div class="w-full max-w-4xl mx-auto relative">
 
-        <!-- ===== ローディング画面 ===== -->
         <div id="loading-screen" class="screen text-center">
             <div class="loader inline-block"></div>
             <p class="mt-4 text-gray-600">市区町村データを読み込み中...</p>
         </div>
 
-        <!-- ===== トップ画面 (クイズ設定) ===== -->
         <div id="settings-screen" class="screen hidden">
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
                 <h1 class="text-2xl md:text-3xl font-bold text-center mb-6 font-rounded">市区町村クイズ 設定</h1>
 
                 <div class="space-y-8">
-                    <!-- 出題数 -->
                     <div>
                         <label class="block text-lg font-semibold mb-3 text-gray-700">出題数</label>
                         <div class="flex justify-center space-x-2">
-                            <button data-questions="10" class="setting-btn question-count-btn bg-gray-200 px-4 py-2 rounded-full font-semibold">10問</button>
+                            <button data-questions="10" class="setting-btn question-count-btn bg-gray-200 text-gray-800 px-4 py-2 rounded-full font-semibold">10問</button>
                             <button data-questions="20" class="setting-btn question-count-btn bg-blue-500 text-white px-4 py-2 rounded-full font-semibold">20問</button>
-                            <button data-questions="50" class="setting-btn question-count-btn bg-gray-200 px-4 py-2 rounded-full font-semibold">50問</button>
+                            <button data-questions="50" class="setting-btn question-count-btn bg-gray-200 text-gray-800 px-4 py-2 rounded-full font-semibold">50問</button>
                         </div>
                     </div>
 
-                    <!-- 出題条件 -->
                     <div>
                         <h2 class="text-lg font-semibold mb-4 text-gray-700">出題範囲の絞り込み</h2>
                         <div class="space-y-6">
-                            <!-- 面積 -->
                             <div>
                                 <div class="flex justify-between items-baseline mb-2">
                                     <label class="font-semibold">面積 (km²)</label>
@@ -117,7 +125,6 @@
                                 </div>
                                 <div id="area-slider" class="mx-2"></div>
                             </div>
-                            <!-- 人口 -->
                             <div>
                                 <div class="flex justify-between items-baseline mb-2">
                                     <label class="font-semibold">人口 (人)</label>
@@ -125,7 +132,6 @@
                                 </div>
                                 <div id="population-slider" class="mx-2"></div>
                             </div>
-                            <!-- 人口密度 -->
                             <div>
                                 <div class="flex justify-between items-baseline mb-2">
                                     <label class="font-semibold">人口密度 (人/km²)</label>
@@ -146,35 +152,35 @@
             </div>
         </div>
 
-        <!-- ===== クイズ画面 ===== -->
         <div id="quiz-screen" class="screen hidden">
              <div class="bg-white p-4 md:p-8 rounded-2xl shadow-lg">
                 <div class="mb-4 flex justify-between items-center">
                     <h2 id="progress-indicator" class="text-lg font-bold font-rounded">1問目 / 20問</h2>
-                    <div id="feedback-message" class="text-xl font-bold text-center h-8"></div>
+                    <div id="feedback-message" class="text-xl font-bold text-center h-12"></div>
                 </div>
 
                 <p class="text-center text-2xl md:text-4xl font-bold my-6 h-20 flex items-center justify-center">
                     <span id="city-name-question" class="font-rounded"></span>はどの都道府県？
                 </p>
 
-                <!-- 都道府県ボタンコンテナ -->
                 <div id="prefecture-buttons-container" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2 mt-6">
-                    <!-- ボタンはJavaScriptで生成されます -->
-                </div>
+                    </div>
+             </div>
+             <div class="mt-6 text-center">
+                <button id="back-to-settings-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-full text-sm transition-colors">
+                    設定に戻る
+                </button>
              </div>
         </div>
 
 
-        <!-- ===== 結果画面 ===== -->
         <div id="results-screen" class="screen hidden">
             <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg text-center">
                 <h1 class="text-3xl font-bold mb-4 font-rounded">クイズ結果</h1>
                 <p class="text-5xl font-bold my-6"><span id="correct-answers-count"></span> / <span id="total-questions-count"></span></p>
 
                 <div id="results-list" class="mt-8 text-left max-h-80 overflow-y-auto pr-2">
-                    <!-- 結果はJavaScriptで生成されます -->
-                </div>
+                    </div>
 
                 <button id="restart-quiz-btn" class="mt-8 w-full max-w-xs bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full text-lg transition-transform transform hover:scale-105">
                     もう一度挑戦する
@@ -226,6 +232,7 @@
             const totalQuestionsCountEl = document.getElementById('total-questions-count');
             const resultsListEl = document.getElementById('results-list');
             const restartQuizBtn = document.getElementById('restart-quiz-btn');
+            const backToSettingsBtn = document.getElementById('back-to-settings-btn');
 
             // --- スライダー要素 ---
             const sliders = {
@@ -324,6 +331,7 @@
                     btn.classList.remove('correct', 'incorrect', 'disabled');
                 });
                 feedbackMessageEl.textContent = '';
+                feedbackMessageEl.classList.remove('correct-feedback', 'incorrect-feedback');
 
                 const currentQuestion = quizQuestions[currentQuestionIndex];
                 progressIndicatorEl.textContent = `${currentQuestionIndex + 1}問目 / ${quizQuestions.length}問`;
@@ -345,13 +353,11 @@
                 if (isCorrect) {
                     score++;
                     feedbackMessageEl.textContent = '正解！';
-                    feedbackMessageEl.classList.remove('text-red-500');
-                    feedbackMessageEl.classList.add('text-green-500');
+                    feedbackMessageEl.classList.add('correct-feedback');
                     clickedButton.classList.add('correct');
                 } else {
                     feedbackMessageEl.textContent = `不正解... 正解は${currentQuestion.prefecture}`;
-                    feedbackMessageEl.classList.remove('text-green-500');
-                    feedbackMessageEl.classList.add('text-red-500');
+                    feedbackMessageEl.classList.add('incorrect-feedback');
                     clickedButton.classList.add('incorrect');
                     
                     const correctButton = prefectureButtonsContainer.querySelector(`[data-prefecture="${currentQuestion.prefecture}"]`);
@@ -368,7 +374,7 @@
                 
                 currentQuestionIndex++;
                 
-                setTimeout(askQuestion, 1500);
+                setTimeout(askQuestion, 1000); 
             };
 
             // 結果表示
@@ -384,7 +390,7 @@
                     
                     // Google Mapsの検索URLを生成
                     const mapQuery = encodeURIComponent(`${result.question.prefecture} ${result.question.city}`);
-                    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
+                    const mapUrl = `https://www.google.com/maps?q=${mapQuery}`;
 
                     resultEl.innerHTML = `
                         <div class="flex-grow">
@@ -413,7 +419,7 @@
             const createPrefectureButtons = () => {
                 PREFECTURES.forEach(pref => {
                     const button = document.createElement('button');
-                    button.textContent = pref.replace(/([都道府県])/g, '');
+                    button.textContent = pref;
                     button.dataset.prefecture = pref;
                     button.classList.add('pref-button', 'bg-white', 'hover:bg-blue-100', 'text-gray-700', 'font-semibold', 'py-2', 'px-1', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'text-sm');
                     prefectureButtonsContainer.appendChild(button);
@@ -450,8 +456,9 @@
                             quizSettings.questionCount = parseInt(btn.dataset.questions, 10);
                             questionCountBtns.forEach(b => {
                                 b.classList.remove('bg-blue-500', 'text-white');
-                                b.classList.add('bg-gray-200');
+                                b.classList.add('bg-gray-200', 'text-gray-800');
                             });
+                            btn.classList.remove('bg-gray-200', 'text-gray-800');
                             btn.classList.add('bg-blue-500', 'text-white');
                             filterCities();
                         });
@@ -459,6 +466,7 @@
                     startQuizBtn.addEventListener('click', startQuiz);
                     restartQuizBtn.addEventListener('click', resetQuiz);
                     prefectureButtonsContainer.addEventListener('click', handleAnswer);
+                    backToSettingsBtn.addEventListener('click', resetQuiz);
                     
                     filterCities();
                     switchScreen('settings');
@@ -475,4 +483,3 @@
 
 </body>
 </html>
-
